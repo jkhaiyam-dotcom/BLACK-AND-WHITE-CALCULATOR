@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Black and White Calculator</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    body {
+      background-color: #000000;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .calculator {
+      width: 320px;
+      background-color: #000000;
+      border: 3px solid #ffffff;
+      padding: 20px;
+      box-shadow: 8px 8px 0px #ffffff;
+    }
+
+    .display {
+      width: 100%;
+      height: 75px;
+      background-color: #000000;
+      border: 2px solid #ffffff;
+      margin-bottom: 20px;
+      padding: 10px;
+      text-align: right;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .previous-operand {
+      color: #888888;
+      font-size: 0.9rem;
+      min-height: 1rem;
+    }
+
+    .current-operand {
+      color: #ffffff;
+      font-size: 1.8rem;
+      font-weight: bold;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 55px;
+      background-color: #000000;
+      color: #ffffff;
+      border: 2px solid #ffffff;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #ffffff;
+      color: #000000;
+    }
+
+    .span-two {
+      grid-column: span 2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="calculator">
+    <div class="display">
+      <div class="previous-operand" id="previous-operand"></div>
+      <div class="current-operand" id="current-operand">0</div>
+    </div>
+    
+    <div class="buttons">
+      <button onclick="clearAll()" class="span-two">AC</button>
+      <button onclick="deleteNumber()">DEL</button>
+      <button onclick="appendOperator('/')">÷</button>
+      
+      <button onclick="appendNumber('7')">7</button>
+      <button onclick="appendNumber('8')">8</button>
+      <button onclick="appendNumber('9')">9</button>
+      <button onclick="appendOperator('*')">×</button>
+      
+      <button onclick="appendNumber('4')">4</button>
+      <button onclick="appendNumber('5')">5</button>
+      <button onclick="appendNumber('6')">6</button>
+      <button onclick="appendOperator('-')">-</button>
+      
+      <button onclick="appendNumber('1')">1</button>
+      <button onclick="appendNumber('2')">2</button>
+      <button onclick="appendNumber('3')">3</button>
+      <button onclick="appendOperator('+')">+</button>
+      
+      <button onclick="appendNumber('.')">.</button>
+      <button onclick="appendNumber('0')">0</button>
+      <button onclick="calculate()" class="span-two">=</button>
+    </div>
+  </div>
+
+  <script>
+    let currentInput = '0';
+    let previousInput = '';
+    let operator = null;
+
+    const currentOperandEl = document.getElementById('current-operand');
+    const previousOperandEl = document.getElementById('previous-operand');
+
+    function updateDisplay() {
+      currentOperandEl.innerText = currentInput;
+      if (operator != null) {
+        previousOperandEl.innerText = `${previousInput} ${getSymbol(operator)}`;
+      } else {
+        previousOperandEl.innerText = '';
+      }
+    }
+
+    function getSymbol(op) {
+      if (op === '/') return '÷';
+      if (op === '*') return '×';
+      return op;
+    }
+
+    function appendNumber(number) {
+      if (number === '.' && currentInput.includes('.')) return;
+      if (currentInput === '0' && number !== '.') {
+        currentInput = number;
+      } else {
+        currentInput += number;
+      }
+      updateDisplay();
+    }
+
+    function appendOperator(op) {
+      if (currentInput === '' && previousInput === '') return;
+      if (previousInput !== '' && currentInput !== '') {
+        calculate();
+      }
+      operator = op;
+      previousInput = currentInput;
+      currentInput = '0';
+      updateDisplay();
+    }
+
+    function clearAll() {
+      currentInput = '0';
+      previousInput = '';
+      operator = null;
+      updateDisplay();
+    }
+
+    function deleteNumber() {
+      if (currentInput.length === 1) {
+        currentInput = '0';
+      } else {
+        currentInput = currentInput.slice(0, -1);
+      }
+      updateDisplay();
+    }
+
+    function calculate() {
+      let computation;
+      const prev = parseFloat(previousInput);
+      const current = parseFloat(currentInput);
+
+      if (isNaN(prev) || isNaN(current)) return;
+
+      switch (operator) {
+        case '+': computation = prev + current; break;
+        case '-': computation = prev - current; break;
+        case '*': computation = prev * current; break;
+        case '/':
+          if (current === 0) {
+            alert("Cannot divide by zero");
+            clearAll();
+            return;
+          }
+          computation = prev / current;
+          break;
+        default: return;
+      }
+
+      currentInput = computation.toString();
+      operator = null;
+      previousInput = '';
+      updateDisplay();
+    }
+  </script>
+</body>
+</html>
